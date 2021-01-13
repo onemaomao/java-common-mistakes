@@ -1,0 +1,8 @@
+package org.geekbang.time.totry.design.principle.simpleresponsibility.simple;
+
+
+public class LiveCourse {
+    public  void  study(String courseName){
+        System.out.println("不能快进");
+    }
+}

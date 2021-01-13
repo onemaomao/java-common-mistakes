@@ -1,0 +1,2 @@
+alipay=org.geekbang.time.totry.dubbospi.AlipayOrder
+wechat=org.geekbang.time.totry.dubbospi.WeChatOrder
