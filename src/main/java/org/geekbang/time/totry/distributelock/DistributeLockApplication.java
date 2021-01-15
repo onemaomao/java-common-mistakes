@@ -5,8 +5,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
-@MapperScan("org.geekbang.time.totry.distributelock")
+@SpringBootApplication(scanBasePackages = "org.geekbang.time.totry.distributelock")
 public class DistributeLockApplication {
 
     public static void main(String[] args) {
