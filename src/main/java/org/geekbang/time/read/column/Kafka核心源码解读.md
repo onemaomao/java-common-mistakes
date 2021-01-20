@@ -32,8 +32,6 @@
 
 
 
-![image-20210119163538494](/Users/jiayin/Library/Application Support/typora-user-images/image-20210119163538494.png)
-
 ----
 
 ### 从功能上讲，Kafka 源码分为四大模块
@@ -50,7 +48,7 @@ Streams 源码：用于实现实时的流处理功能。
 
 把服务器端源码按照功能划分了 7 个模块，每个模块会进一步划开多个子部分，详细地给出各个组件级的源码分析。
 
-![image-20210119163923146](/Users/jiayin/Library/Application Support/typora-user-images/image-20210119163923146.png)
+
 
 
 
@@ -111,4 +109,8 @@ Oracle，Java 8，Scala 2.12，IDEA + Scala，Git
 ----
 
 ### Scala热身
+
+
+
+## 重磅加餐 | 带你快速入门Scala语言
 
