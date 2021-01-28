@@ -43,3 +43,21 @@ Extends HashMap to allow insertion-order iterations.
 
 IdentityHashMap
 Extends AbstractMap and uses reference equality when comparing documents.
+
+Vector
+This implements a dynamic array. It is similar to ArrayList, but with some differences.
+
+Stack
+Stack is a subclass of Vector that implements a standard last-in, first-out stack.
+
+Dictionary
+Dictionary is an abstract class that represents a key/value storage repository and operates much like Map.
+
+Hashtable
+Hashtable was part of the original java.util and is a concrete implementation of a Dictionary.
+
+Properties
+Properties is a subclass of Hashtable. It is used to maintain lists of values in which the key is a String and the value is also a String.
+
+BitSet
+A BitSet class creates a special type of array that holds bit values. This array can increase in size as needed.
