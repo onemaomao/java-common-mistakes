@@ -114,3 +114,225 @@ Oracle，Java 8，Scala 2.12，IDEA + Scala，Git
 
 ## 重磅加餐 | 带你快速入门Scala语言
 
+### **Java 函数式编程**
+
+《JAVA 8 IN ACTION》
+
+----
+
+### **定义变量和函数**
+
+Scala 有两类变量：**val 和 var**。**val 等同于 Java 中的 final 变量，一旦被初始化，就不能再被重新赋值了**。相反地，**var 是非 final 变量，可以重复被赋值**。
+
+**变量后面可以跟“冒号 + 类型”，以显式标注变量的类型**。
+
+**在 Scala 中，函数体具体代码块最后一行的值将被作为函数结果返回**。
+
+```scala
+def deleteIndicesIfExist(baseFile: File, suffix: String = ""): Unit = {
+  // 这里参数suffix的默认值是""，即空字符串
+  // 函数结尾处的Unit类似于Java中的void关键字，表示该函数不返回任何结果
+  info(s"Deleting index files with suffix $suffix for baseFile $baseFile")
+  val offset = offsetFromFile(baseFile)
+  Files.deleteIfExists(Log.offsetIndexFile(dir, offset, suffix).toPath)
+  Files.deleteIfExists(Log.timeIndexFile(dir, offset, suffix).toPath)
+  Files.deleteIfExists(Log.transactionIndexFile(dir, offset, suffix).toPath)
+}
+```
+
+以上函数有两个额外的语法特性
+
+第一个特性是**参数默认值**，这是 Java 不支持的。
+
+第二个特性是**该函数的返回值 Unit**。
+
+----
+
+### **定义元组（Tuple）**
+
+```scala
+scala> val a = (1, 2.3, "hello", List(1,2,3)) // 定义一个由4个元素构成的元组，每个元素允许是不同的类型
+a: (Int, Double, String, List[Int]) = (1,2.3,hello,List(1, 2, 3))
+
+scala> a._1 // 访问元组的第一个元素
+res0: Int = 1
+
+scala> a._2 // 访问元组的第二个元素
+res1: Double = 2.3
+
+scala> a._3 // 访问元组的第三个元素
+res2: String = hello
+
+scala> a._4 // 访问元组的第四个元素
+res3: List[Int] = List(1, 2, 3)
+```
+
+
+
+```scala
+def checkEnoughReplicasReachOffset(requiredOffset: Long): (Boolean, Errors) = {
+    ......
+    if (minIsr <= curInSyncReplicas.size)
+    (true, Errors.NONE)
+    else
+    (true, Errors.NOT_ENOUGH_REPLICAS_AFTER_APPEND)
+    ......
+  }
+```
+
+以上方法返回一个 (Boolean, Errors) 类型的元组，即元组的第一个元素或字段是 Boolean 类型，第二个元素是 Kafka 自定义的 Errors 类型
+
+----
+
+### **循环写法**
+
+常见的循环有两种写法：**命令式编程方式**和**函数式编程方式**。
+
+```scala
+scala> val list = List(1, 2, 3, 4, 5)
+scala> list.foreach(e => println(e))
+scala> list.foreach(println)
+```
+
+
+
+```scala
+def stopProcessingRequests() = {
+  ......
+     dataPlaneAcceptors.asScala.values.foreach(_.shutdown())
+  ......
+}
+```
+
+首先调用 asScala 方法，将 Java 的 ConcurrentHashMap 转换成 Scala 语言中的 concurrent.Map 对象；然后获取它保存的所有 Acceptor 线程，通过 foreach 循环，调用每个 Acceptor 对象的 initiateShutdown 方法。如果这个逻辑用命令式编程来实现，至少要几行甚至是十几行才能完成。
+
+----
+
+### **case 类**
+
+Case 类非常适合用来表示不可变数据。同时，它最有用的一个特点是，case 类自动地为所有类字段定义 Getter 方法，这样能省去很多样本代码。
+
+java示例
+
+```java
+public final class Point {
+  private int x;
+  private int y;
+  public Point(int x, int y) {
+    this.x = x;
+    this.y = y;
+  }
+  // setter methods......
+  // getter methods......
+}
+```
+
+scala示例
+
+```scala
+case class Point(x:Int, y: Int) // 默认写法。不能修改x和y
+case class Point(var x: Int, var y: Int) // 支持修改x和y
+```
+
+Scala 会自动地帮你创建出 x 和 y 的 Getter 方法。默认情况下，x 和 y 不能被修改，如果要支持修改，你要采用上面代码中第二行的写法。
+
+
+
+----
+
+### **模式匹配**
+
+```scala
+def describe(x: Any) = x match {
+  case 1 => "one"
+  case false => "False"
+  case "hi" => "hello, world!"
+  case Nil => "the empty list"
+  case e: IOException => "this is an IOException"
+  case s: String if s.length > 10 => "a long string"
+  case _ => "something else"
+}
+```
+
+这个函数的 x 是 Any 类型，这相当于 Java 中的 Object 类型，即所有类的父类。注意倒数第二行的“case _”的写法，它是用来兜底的。如果上面的所有 case 分支都不匹配，那就进入到这个分支。另外，它还支持一些复杂的表达式，比如倒数第三行的 case 分支，表示 x 是字符串类型，而且 x 的长度超过 10 的话，就进入到这个分支。
+
+要知道，Java 在 JDK 14 才刚刚引入这个相同的功能，足见 Scala 语法的强大和便捷。
+
+----
+
+### **Option 对象**
+
+```scala
+scala> val keywords = Map("scala" -> "option", "java" -> "optional") // 创建一个Map对象
+keywords: scala.collection.immutable.Map[String,String] = Map(scala -> option, java -> optional)
+
+scala> keywords.get("java") // 获取key值为java的value值。由于值存在故返回Some(optional)
+res24: Option[String] = Some(optional)
+
+scala> keywords.get("C") // 获取key值为C的value值。由于不存在故返回None
+res23: Option[String] = None
+```
+
+Option 对象还经常与模式匹配语法一起使用，以实现不同情况下的处理逻辑。比如，Option 对象有值和没有值时分别执行什么代码。如下代码：
+
+```scala
+def display(game: Option[String]) = game match {
+  case Some(s) => s
+  case None => "unknown"
+}
+
+scala> display(Some("Heroes 3"))
+res26: String = Heroes 3
+
+scala> display(Some("StarCraft"))
+res27: String = StarCraft
+
+scala> display(None)
+res28: String = unknown
+```
+
+----
+
+### 总结
+
+```scala
+private def getLag(offset: Option[Long], logEndOffset: Option[Long]): Option[Long] =
+  offset.filter(_ != -1).flatMap(offset => logEndOffset.map(_ - offset))
+```
+
+它是一个函数，接收两个类型为 Option[Long]的参数，同时返回一个 Option[Long]的结果。代码逻辑很简单，首先判断 offset 是否有值且不能是 -1。这些都是在 filter 函数中完成的，之后调用 flatMap 方法计算 logEndOffset 值与 offset 的差值，最后返回这个差值作为 Lag。
+
+
+
+## 01 | 日志段：保存消息文件的对象是怎么实现的？
+
+### **Kafka 日志结构概览**
+
+
+
+### **日志段代码解析**
+
+core/src/main/scala/kafka/log/LogSegment.scala
+
+该文件下定义了三个 Scala 对象：
+
+LogSegment class；
+
+LogSegment object ；
+
+LogFlushStats object。
+
+### **日志段类声明**
+
+----
+
+### **append 方法**
+
+----
+
+### **recover 方法**
+
+----
+
+
+
