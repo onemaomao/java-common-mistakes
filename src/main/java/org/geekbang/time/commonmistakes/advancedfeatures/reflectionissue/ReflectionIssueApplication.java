@@ -23,6 +23,9 @@ public class ReflectionIssueApplication {
 
     public void wrong() throws Exception {
         getClass().getDeclaredMethod("age", Integer.TYPE).invoke(this, Integer.valueOf("36"));
+        //以上不就等价于下面么，见PrimitiveTypeDemo
+        //getClass().getDeclaredMethod("age", int.class).invoke(this, Integer.valueOf("36"));
+
     }
 
     public void right() throws Exception {

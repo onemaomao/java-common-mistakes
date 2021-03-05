@@ -7,7 +7,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GenericAndInheritanceApplication {
 
     public static void main(String[] args) {
-        wrong3();
+//        wrong1();
+//        wrong2();
+//        wrong3();
+        right();
     }
 
     public static void wrong1() {
