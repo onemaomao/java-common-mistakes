@@ -224,6 +224,15 @@
             <version>0.7.5</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.openjdk.jol/jol-core -->
+        <dependency>
+            <groupId>org.openjdk.jol</groupId>
+            <artifactId>jol-core</artifactId>
+            <version>0.9</version>
+<!--            <scope>provided</scope>-->
+        </dependency>
+
+
         <!--        <dependency>-->
         <!--            <groupId>org.springframework</groupId>-->
         <!--            <artifactId>spring-aspects</artifactId>-->
