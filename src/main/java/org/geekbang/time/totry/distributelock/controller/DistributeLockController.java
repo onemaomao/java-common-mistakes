@@ -7,12 +7,15 @@ import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.geekbang.time.totry.distributelock.curator.InterProcessCloseableMutex;
 import org.geekbang.time.totry.distributelock.redis.RedisLock;
 import org.geekbang.time.totry.distributelock.zk.ZkLock;
+import org.redisson.RedissonRedLock;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @Slf4j
@@ -115,5 +118,16 @@ public class DistributeLockController {
         }
         log.info(Thread.currentThread().getName()+" redissonlock invoke success");
         return Thread.currentThread().getName() + " redissonlock invoke success";
+    }
+
+    @RequestMapping("redlock")
+    public String redLock(){
+        RLock rLock = redisson.getLock("b");
+        RedissonRedLock lock = new RedissonRedLock(rLock);
+        //lock.lock();
+        lock.lock(3, TimeUnit.MINUTES);
+
+        lock.unlock();
+        return Thread.currentThread().getName() + " redlock invoke success";
     }
 }
