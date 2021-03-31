@@ -255,7 +255,7 @@ G1特点
     https://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/collectors.html#sthref28
     优先调整堆的大小让服务器自己来选择
     如果内存小于100M，使用串行收集器
-    如果是单核，并且没有停顿时间要求，使用串行或JVM自己选
+    如果是单核，并且没有停顿时间要求并且没有停顿时间要求，使用串行或JVM自己选
     如果允许停顿时间超过1秒，选择并行或JVM自己选
     如果响应时间最重要，并且不能超过1秒，使用并发收集器
 1.4.11 再次理解G1
@@ -268,11 +268,128 @@ G1特点
     （1）串行 -XX：+UseSerialGC -XX：+UseSerialOldGC
     （2）并行(吞吐量优先)： -XX：+UseParallelGC -XX：+UseParallelOldGC
     （3）并发收集器(响应时间优先) -XX：+UseConcMarkSweepGC -XX：+UseG1GC
+----
 
+实战篇
+1.1 JVM参数
+1.1.1 标准参数
+    -version -help -server -cp
+1.1.2 -X参数
+    -Xint 解释执行 
+    -Xcomp 第一次使用就编译成本地代码 
+    -Xmixed 混合模式，JVM自己来决定
+1.1.3 -XX参数
+使用得最多的参数类型
+非标准化参数，相对不稳定，主要用于JVM调优和Debug
+    a.Boolean类型
+        格式：-XX:[+-]<name> +或-表示启用或者禁用name属性
+        比如：-XX:+UseConcMarkSweepGC 表示启用CMS类型的垃圾回收器
+    b.非Boolean类型
+        格式：-XX<name>=<value>表示name属性的值是value
+        比如：-XX:MaxGCPauseMillis=500
+1.1.4 其他参数
+    -Xms1000等价于-XX:InitialHeapSize=1000 
+    -Xmx1000等价于-XX:MaxHeapSize=1000 
+    -Xss100等价于-XX:ThreadStackSize=100
+    所以这块也相当于是-XX类型的参数
+1.1.5 查看参数
+    java -XX:+PrintFlagsFinal -version > flags.txt
+    值得注意的是"="表示默认值，":="表示被用户或JVM修改后的值
+1.1.6 设置参数的方式
+    开发工具中设置比如IDEA，eclipse
+    运行jar包的时候:java -XX:+UseG1GC xxx.jar
+    web容器比如tomcat，可以在脚本中的进行设置
+    通过jinfo实时调整某个java进程的参数(参数只有被标记为manageable的flags可以被实时修改)
+1.1.7 实践和单位换算
+    1Byte(字节)=8bit(位) 
+    1KB=1024Byte(字节) 
+    1MB=1024KB 
+    1GB=1024MB 
+    1TB=1024GB
+    (1)设置堆内存大小和参数打印
+        -Xmx100M -Xms100M -XX:+PrintFlagsFinal
+    (2)查询+PrintFlagsFinal的值
+        :=true
+    (3)查询堆内存大小MaxHeapSize
+        := 104857600
+    (4)换算
+        104857600(Byte)/1024=102400(KB) 102400(KB)/1024=100(MB) 
+    (5)结论
+        104857600是字节单位
+1.1.8 常用参数含义
+    见文稿表格
+1.2 常用命令
+    1.2.1 jps
+    查看java进程
+1.2.2 jinfo
+    (1)实时查看和调整JVM配置参数
+    (2)查看
+        jinfo -ﬂag name PID查看某个java进程的name属性的值
+        jinfo -flag MaxHeapSize PID
+        jinfo -flag UseG1GC PID
+    (3)修改
+    参数只有被标记为manageable的ﬂags可以被实时修改
+        jinfo -ﬂag [+|-] PID
+        jinfo -ﬂag = PID
+1.2.3 jstat
+    (1)查看虚拟机性能统计信息
+    (2)查看类装载信息
+    jstat -class PID 1000 
+    查看某个java进程的类装载信息，每1000毫秒输出一次，共输出10次
+    (3)查看垃圾收集信息
+    jstat -gc PID 1000 10
+1.2.4jstack
+    (1)查看线程堆栈信息
+    (2)用法
+        jstack PID
+    (3)排查死锁案例
+1.2.5jmap
+    (1)生成堆转储快照
+    (2)打印出堆内存相关信息
+        -XX:+PrintFlagsFinal -Xms300M -Xmx300M 
+        jmap-heap PID
+    (3)dump出堆内存相关信息
+        jmap-dump:format=b,ﬁle=heap.hprofPID
+1.3 常用工具
+1.3.1jconsole
+1.3.2jvisualvm
+1.3.3Arthas
+1.3.4MAT
+1.3.4GC日志分析工具
+-XX:+PrintGCDetails-XX:+PrintGCTimeStamps-XX:+PrintGCDateStamps -Xloggc:gc.log
+    gceasy
+    GCVIEWER
+----
 
+终结篇
+1.1 重新认知JVM
+    JVM的物理结构图
+1.2 GC优化
+1.2.1 垃圾收集发生的时机
+GC是由JVM自动完成的，根据JVM系统环境而定，所以时机是不确定的。
+当然，我们可以手动进行垃圾回收，比如调用System.gc()方法通知JVM进行一次垃圾回收，但是具体什么时刻运行也无法控制。
+也就是说System.gc()只是通知要回收，什么时候回收由JVM决定。 但是不建议手动调用该方法，因为消耗的资源比较大。
+一般以下几种情况会发生垃圾回收
+    （1）当Eden区或者S区不够用了 
+    （2）老年代空间不够用了 
+    （3）方法区空间不够用了 
+    （4）System.gc()
+1.2.2 实验环境准备
+1.2.3 GC日志文件
+    1.2.3.1 Parallel GC日志
+    1.2.3.2 CMS日志
+    1.2.3.3 G1日志
+1.2.4 GC日志文件分析工具
+    1.2.4.1 gceasy
+    1.2.4.2 GCViewer
+1.2.5 G1调优与最佳指南
+是否选用G1垃圾收集器的判断依据
+https://docs.oracle.com/javase/8/docs/technotes/guides/vm/G1.html#use_cases
+（1）50%以上的堆被存活对象占用 
+（2）对象分配和晋升的速度变化非常大 
+（3）垃圾回收时间比较长
+思考: https://blogs.oracle.com/poonam/increased-heap-usage-with-g1-gc
 
-
-
-
-
+1.2.5.1 调优
+1.2.5.2 最佳指南
 
