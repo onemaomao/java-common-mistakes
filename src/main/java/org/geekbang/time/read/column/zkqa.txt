@@ -64,3 +64,53 @@ LearnerHandler
 12. leader选举完后的数据同步流程
 
 13. zk的文件存储
+
+
+
+gupao2019
+zk实战:
+集群角色:Leader、Follower、Observer
+数据模型:ZNode,树形结构
+    持久节点（PERSISTENT）
+    持久有序节点（PERSISTENT_SEQUENTIAL）
+    临时节点(EPHEMERAL)
+    临时有序节点(EPHEMERAL)
+    org.apache.zookeeper.CreateMode
+    CONTAINER,PERSISTENT_WITH_TTL,PERSISTENT_SEQUENTIAL_WITH_TTL?
+会话:CONNECTING,CONNECTED,CLOSED
+    org.apache.zookeeper.ZooKeeper.States
+Stat状态信息:
+    get 命令可以获得
+    czxid,mzxid,ctime,mtime,version,cversion,aversion,ephemeralOwner,dataLength,numChildren,pzxid
+版本-保证分布式数据原子性:
+    3类版本信息:version,cversion,aversion
+Watcher:发布/订阅功能
+Zookeeper 基于 Java 访问
+    zkclient、curator
+    节点的增删改查
+    节点的权限控制
+    节点事件监听
+        org.apache.zookeeper.Watcher.Event.EventType
+        None,NodeCreated,NodeDeleted,NodeDataChanged,NodeChildrenChanged
+--
+zk核心原理
+分布式锁的基本场景
+用 zookeeper 来实现分布式锁
+    惊群效应
+利用临时有序节点来实现分布式锁
+curator 分布式锁的基本使用
+Curator 实现分布式锁的基本原理
+释放锁的逻辑
+使用 Zookeeper 实现 leader 选举
+    Leader Latch
+    LeaderSelector
+Zookeeper 数据的同步流程
+    ZAB 协议
+    崩溃恢复的实现原理
+        已经被处理的消息不能丢
+        被丢弃的消息不能再次出现
+    关于 ZXID
+--
+zk leader选举源码解析
+
+
